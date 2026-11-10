@@ -206,6 +206,9 @@ Repo GitHub → **Settings → Webhooks → Add webhook**
 - Payload URL: `https://xxxx.ngrok-free.app/github-webhook/` (wajib diakhiri `/`)
 - Content type: `application/json` · Event: **Just the push event** → Add webhook
 
+> **Tips:** akun ngrok gratis mendapat satu domain tetap (`*.ngrok-free.dev`), jadi webhook cukup dipasang
+> sekali. Saat demo cukup jalankan lagi `ngrok http 9090` dan biarkan terminalnya terbuka.
+
 Selesai! Setiap `git push` ke `main` akan otomatis menjalankan pipeline:
 
 | Stage | Yang dilakukan |
