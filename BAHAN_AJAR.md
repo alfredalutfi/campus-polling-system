@@ -77,7 +77,7 @@ Ada 3 tahap. **Tahap A** cukup untuk melihat aplikasinya jalan. **Tahap B & C** 
    git init -b main
    git add .
    git commit -m "Campus Polling System - initial commit"
-   git remote add origin https://github.com/<username>/campus-polling-system.git
+   git remote add origin https://github.com/alfredalutfi/campus-polling-system.git
    git push -u origin main
    ```
    Saat diminta *password*, tempel **token PAT** (bukan password akun GitHub).
@@ -102,10 +102,10 @@ Buka **http://localhost:9090** → tempel password → **Install suggested plugi
 
 **C3. Buat Pipeline Job**
 **+ New Item** → nama `campus-polling-system` → pilih **Pipeline** → OK
-- General: ✅ **GitHub project** → Project url: `https://github.com/<username>/campus-polling-system/`
+- General: ✅ **GitHub project** → Project url: `https://github.com/alfredalutfi/campus-polling-system/`
 - Triggers: ✅ **GitHub hook trigger for GITScm polling**
 - Pipeline → Definition: **Pipeline script from SCM**
-  - SCM: **Git** · Repository URL: `https://github.com/<username>/campus-polling-system.git`
+  - SCM: **Git** · Repository URL: `https://github.com/alfredalutfi/campus-polling-system.git`
   - Credentials: **github-pat** · Branch Specifier: `*/main` · Script Path: `Jenkinsfile`
 - **Save**
 

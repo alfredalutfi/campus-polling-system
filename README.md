@@ -130,7 +130,7 @@ Pertanyaan & label opsi bisa diubah lewat environment variable `POLL_QUESTION`, 
 **Prasyarat:** Docker Desktop (atau Docker Engine + Compose v2) dan Git.
 
 ```bash
-git clone https://github.com/<username>/campus-polling-system.git
+git clone https://github.com/alfredalutfi/campus-polling-system.git
 cd campus-polling-system
 
 docker compose up -d --build     # build image backend + jalankan stack
@@ -192,7 +192,7 @@ Di Jenkins: **Manage Jenkins → Credentials → System → Global → Add Crede
 - ✅ **GitHub project** → URL repo
 - Build Triggers: ✅ **GitHub hook trigger for GITScm polling**
 - Pipeline → Definition: **Pipeline script from SCM** → SCM: **Git**
-  - Repository URL: `https://github.com/<username>/campus-polling-system.git`
+  - Repository URL: `https://github.com/alfredalutfi/campus-polling-system.git`
   - Credentials: `github-pat`
   - Branch: `*/main` · Script Path: `Jenkinsfile`
 - Save → **Build Now** (build pertama manual untuk memastikan pipeline hijau)
