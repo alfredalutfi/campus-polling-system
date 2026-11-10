@@ -4,6 +4,7 @@
 > dan **bisa menjawab pertanyaan dosen** saat demo. Baca berurutan sekali, lalu pakai Bagian 7–10 sebagai contekan saat latihan.
 
 **Daftar isi**
+
 0. [Cara Menjalankan Proyek (Langkah demi Langkah)](#0-cara-menjalankan-proyek-langkah-demi-langkah)
 1. [Gambaran Besar (1 menit paham)](#1-gambaran-besar-1-menit-paham)
 2. [Peta File: Siapa Mengerjakan Apa](#2-peta-file-siapa-mengerjakan-apa)
