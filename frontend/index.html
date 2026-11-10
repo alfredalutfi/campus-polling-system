@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Campus Polling System</title>
+  <style>
+    :root {
+      --bg: #f4f5f9;
+      --card: #ffffff;
+      --text: #1d2233;
+      --muted: #6b7286;
+      --border: #e3e6ef;
+      --a: #e5484d;        /* warna Opsi A */
+      --a-soft: #fde8e8;
+      --b: #3e63dd;        /* warna Opsi B */
+      --b-soft: #e6ecfd;
+      --ok: #2f9e6b;
+      --danger: #d13438;
+      --radius: 14px;
+      --shadow: 0 1px 2px rgba(16, 24, 40, .06), 0 4px 16px rgba(16, 24, 40, .06);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 24px 16px 48px; }
+
+    /* ---------- Header ---------- */
+    header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .logo {
+      width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--a), var(--b)); color: #fff; font-size: 22px;
+    }
+    h1 { font-size: 1.35rem; margin: 0; }
+    .subtitle { margin: 0; color: var(--muted); font-size: .9rem; }
+    .status { display: inline-flex; align-items: center; gap: 8px; font-size: .85rem; padding: 6px 12px; border-radius: 999px; background: var(--card); border: 1px solid var(--border); }
+    .dot { width: 9px; height: 9px; border-radius: 50%; background: #aaa; }
+    .dot.on { background: var(--ok); box-shadow: 0 0 0 3px rgba(47,158,107,.2); }
+    .dot.off { background: var(--danger); box-shadow: 0 0 0 3px rgba(209,52,56,.2); }
+
+    /* ---------- Card umum ---------- */
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; margin-bottom: 18px; }
+    .card h2 { font-size: 1rem; margin: 0 0 14px; }
+    .eyebrow { text-transform: uppercase; letter-spacing: .06em; font-size: .72rem; color: var(--muted); font-weight: 600; }
+    .question { font-size: 1.4rem; font-weight: 700; margin: 4px 0 18px; }
+
+    /* ---------- Hasil Opsi A vs B ---------- */
+    .results { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .opt { border-radius: 12px; padding: 16px; border: 1px solid var(--border); position: relative; }
+    .opt.A { background: var(--a-soft); border-color: #f7c7c8; }
+    .opt.B { background: var(--b-soft); border-color: #c7d3fa; }
+    .opt .tag { font-weight: 700; font-size: .8rem; color: #fff; padding: 2px 8px; border-radius: 6px; }
+    .opt.A .tag { background: var(--a); }
+    .opt.B .tag { background: var(--b); }
+    .opt .label { font-weight: 600; margin: 10px 0 2px; font-size: 1.05rem; }
+    .opt .count { font-size: 2rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .opt .count small { font-size: .9rem; color: var(--muted); font-weight: 500; }
+    .leader-badge { position: absolute; top: 14px; right: 14px; font-size: .75rem; font-weight: 700; background: #fff; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--border); }
+
+    .bar { display: flex; height: 14px; border-radius: 999px; overflow: hidden; background: #e9ebf2; margin-top: 16px; }
+    .bar span { transition: width .5s ease; }
+    .bar .fillA { background: var(--a); }
+    .bar .fillB { background: var(--b); }
+    .bar-legend { display: flex; justify-content: space-between; font-size: .85rem; color: var(--muted); margin-top: 6px; font-variant-numeric: tabular-nums; }
+
+    /* ---------- Form vote ---------- */
+    form { display: grid; gap: 14px; }
+    label.field { display: grid; gap: 6px; font-weight: 600; font-size: .9rem; }
+    input[type=text] {
+      font: inherit; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: #fff; color: var(--text);
+    }
+    input[type=text]:focus { outline: 2px solid var(--b); outline-offset: 1px; }
+    .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .choice input { position: absolute; opacity: 0; pointer-events: none; }
+    .choice span {
+      display: block; padding: 12px; border-radius: 10px; border: 2px solid var(--border); cursor: pointer; font-weight: 600; text-align: center; background: #fff;
+    }
+    .choice.A input:checked + span { border-color: var(--a); background: var(--a-soft); }
+    .choice.B input:checked + span { border-color: var(--b); background: var(--b-soft); }
+    .choice input:focus-visible + span { outline: 2px solid var(--text); outline-offset: 2px; }
+
+    button {
+      font: inherit; font-weight: 600; border: none; border-radius: 10px; padding: 10px 16px; cursor: pointer;
+    }
+    button:disabled { opacity: .6; cursor: progress; }
+    .btn-primary { background: var(--text); color: #fff; }
+    .btn-primary:hover:not(:disabled) { background: #33394d; }
+    .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-danger { background: transparent; color: var(--danger); border: 1px solid #f2c4c5; padding: 6px 10px; font-size: .82rem; }
+    .btn-danger:hover { background: #fdecec; }
+    .btn-danger.confirm { background: var(--danger); color: #fff; }
+
+    /* ---------- Tabel riwayat ---------- */
+    .table-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+    .table-head h2 { margin: 0; }
+    .meta { color: var(--muted); font-size: .8rem; }
+    .table-scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    th { font-size: .75rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+    td.voter { white-space: normal; word-break: break-word; }
+    .pill { font-size: .78rem; font-weight: 700; padding: 2px 8px; border-radius: 6px; color: #fff; }
+    .pill.A { background: var(--a); }
+    .pill.B { background: var(--b); }
+    .empty { text-align: center; color: var(--muted); padding: 28px 8px; }
+
+    /* ---------- Toast notifikasi ---------- */
+    #toast {
+      position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(120px);
+      background: var(--text); color: #fff; padding: 12px 18px; border-radius: 10px; font-size: .92rem;
+      transition: transform .3s ease; max-width: calc(100% - 32px); box-shadow: var(--shadow); z-index: 10;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+    #toast.error { background: var(--danger); }
+    #toast.success { background: var(--ok); }
+
+    footer { text-align: center; color: var(--muted); font-size: .8rem; margin-top: 24px; }
+    code { background: #eef0f6; padding: 1px 6px; border-radius: 5px; font-size: .85em; }
+
+    @media (max-width: 560px) {
+      .results, .choices { grid-template-columns: 1fr; }
+      .question { font-size: 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true">🗳️</div>
+        <div>
+          <h1>Campus Polling System</h1>
+          <p class="subtitle">Studi Kasus 7 · Cloud Computing · Docker + Jenkins CI/CD</p>
+        </div>
+      </div>
+      <div class="status" title="Status koneksi ke Backend API">
+        <span id="apiDot" class="dot"></span>
+        <span id="apiText">Menghubungkan…</span>
+      </div>
+    </header>
+
+    <!-- ================= HASIL POLLING ================= -->
+    <section class="card" aria-live="polite">
+      <div class="eyebrow">Pertanyaan Polling</div>
+      <div class="question" id="question">Memuat…</div>
+
+      <div class="results">
+        <div class="opt A">
+          <span class="tag">OPSI A</span>
+          <span class="leader-badge" id="leadA" hidden>🏆 Unggul</span>
+          <div class="label" id="labelA">-</div>
+          <div class="count"><span id="countA">0</span> <small>suara</small></div>
+        </div>
+        <div class="opt B">
+          <span class="tag">OPSI B</span>
+          <span class="leader-badge" id="leadB" hidden>🏆 Unggul</span>
+          <div class="label" id="labelB">-</div>
+          <div class="count"><span id="countB">0</span> <small>suara</small></div>
+        </div>
+      </div>
+
+      <div class="bar" role="img" id="bar" aria-label="Perbandingan suara">
+        <span class="fillA" id="fillA" style="width:0%"></span>
+        <span class="fillB" id="fillB" style="width:0%"></span>
+      </div>
+      <div class="bar-legend">
+        <span id="pctA">A 0%</span>
+        <span id="totalText">Total 0 suara</span>
+        <span id="pctB">B 0%</span>
+      </div>
+    </section>
+
+    <!-- ================= FORM KIRIM SUARA ================= -->
+    <section class="card">
+      <h2>Kirim Suara Kamu</h2>
+      <form id="voteForm" autocomplete="off">
+        <label class="field">
+          Nama / NIM Pemilih
+          <input type="text" id="voter" maxlength="60" placeholder="contoh: Budi Santoso - 1301220001" required />
+        </label>
+        <div class="choices" role="radiogroup" aria-label="Pilihan">
+          <label class="choice A">
+            <input type="radio" name="option" value="A" required />
+            <span id="choiceA">Opsi A</span>
+          </label>
+          <label class="choice B">
+            <input type="radio" name="option" value="B" />
+            <span id="choiceB">Opsi B</span>
+          </label>
+        </div>
+        <button type="submit" class="btn-primary" id="submitBtn">Kirim Suara</button>
+      </form>
+    </section>
+
+    <!-- ================= RIWAYAT SUARA ================= -->
+    <section class="card">
+      <div class="table-head">
+        <div>
+          <h2>Catatan Suara</h2>
+          <div class="meta" id="lastUpdate">Belum diperbarui</div>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn-ghost" id="refreshBtn" type="button">↻ Refresh</button>
+          <button class="btn-danger" id="resetBtn" type="button">Reset Semua</button>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th>Index</th><th>Pemilih</th><th>Pilihan</th><th>Waktu</th><th></th></tr>
+          </thead>
+          <tbody id="voteRows">
+            <tr><td colspan="5" class="empty">Memuat data…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer>
+      Frontend: Nginx + Bind Mount &nbsp;·&nbsp; API: <code>/api/votes</code> → <code>backend:5000</code> via <code>app-net</code>
+      &nbsp;·&nbsp; Data: Named Volume <code>polling-db-data</code>
+    </footer>
+  </div>
+
+  <div id="toast" role="status"></div>
+
+  <script>
+    // =========================================================
+    // Konfigurasi: semua request lewat Nginx (/api/...) yang
+    // meneruskannya ke kontainer backend (http://backend:5000).
+    // =========================================================
+    const API_BASE = '/api';
+    const AUTO_REFRESH_MS = 5000;
+
+    const $ = (id) => document.getElementById(id);
+    let toastTimer;
+
+    function showToast(message, type = '') {
+      const el = $('toast');
+      el.textContent = message;
+      el.className = 'show ' + type;
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => (el.className = ''), 3200);
+    }
+
+    function setApiStatus(online) {
+      $('apiDot').className = 'dot ' + (online ? 'on' : 'off');
+      $('apiText').textContent = online ? 'API Online' : 'API Offline';
+    }
+
+    // Helper fetch(): kirim request, parse JSON, lempar error jika status bukan 2xx
+    async function api(path, options = {}) {
+      const res = await fetch(API_BASE + path, {
+        headers: { 'Content-Type': 'application/json' },
+        ...options,
+      });
+      let data = {};
+      try { data = await res.json(); } catch (_) { /* respons bukan JSON */ }
+      if (!res.ok) {
+        const err = new Error(data.error || `HTTP ${res.status}`);
+        err.status = res.status;
+        throw err;
+      }
+      return data;
+    }
+
+    function formatTime(iso) {
+      if (!iso) return '-';
+      return new Date(iso).toLocaleString('id-ID', {
+        day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit',
+      });
+    }
+
+    // ---------- Render data ke halaman ----------
+    function renderResults(state) {
+      const { poll, results } = state;
+      $('question').textContent = poll.question;
+      $('labelA').textContent = poll.options.A;
+      $('labelB').textContent = poll.options.B;
+      $('choiceA').textContent = 'A · ' + poll.options.A;
+      $('choiceB').textContent = 'B · ' + poll.options.B;
+
+      $('countA').textContent = results.count.A;
+      $('countB').textContent = results.count.B;
+      $('pctA').textContent = `A ${results.percent.A}%`;
+      $('pctB').textContent = `B ${results.percent.B}%`;
+      $('totalText').textContent = `Total ${results.total} suara`;
+
+      // Jika belum ada suara, bar kosong (terlihat abu-abu)
+      $('fillA').style.width = results.total ? results.percent.A + '%' : '0%';
+      $('fillB').style.width = results.total ? results.percent.B + '%' : '0%';
+      $('bar').setAttribute('aria-label', `Opsi A ${results.percent.A}%, Opsi B ${results.percent.B}%`);
+
+      $('leadA').hidden = results.leader !== 'A';
+      $('leadB').hidden = results.leader !== 'B';
+    }
+
+    function renderVotes(votes) {
+      const tbody = $('voteRows');
+      tbody.innerHTML = '';
+      if (votes.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="empty">Belum ada suara masuk. Jadilah yang pertama!</td></tr>';
+        return;
+      }
+      // Tampilkan yang terbaru di atas
+      [...votes].reverse().forEach((v) => {
+        const tr = document.createElement('tr');
+
+        const tdIdx = document.createElement('td');
+        tdIdx.textContent = v.index;
+
+        // textContent (bukan innerHTML) -> aman dari serangan XSS lewat nama pemilih
+        const tdVoter = document.createElement('td');
+        tdVoter.className = 'voter';
+        tdVoter.textContent = v.voter;
+
+        const tdOpt = document.createElement('td');
+        const pill = document.createElement('span');
+        pill.className = 'pill ' + v.option;
+        pill.textContent = v.option;
+        tdOpt.append(pill, ' ' + v.label);
+
+        const tdTime = document.createElement('td');
+        tdTime.textContent = formatTime(v.timestamp);
+
+        const tdAct = document.createElement('td');
+        const btn = document.createElement('button');
+        const armed = isArmed(v);
+        btn.className = 'btn-danger' + (armed ? ' confirm' : '');
+        btn.textContent = armed ? 'Yakin?' : 'Hapus';
+        btn.onclick = () => deleteVote(v, btn);
+        tdAct.appendChild(btn);
+
+        tr.append(tdIdx, tdVoter, tdOpt, tdTime, tdAct);
+        tbody.appendChild(tr);
+      });
+    }
+
+    // ---------- GET /votes ----------
+    async function loadVotes({ silent = false } = {}) {
+      try {
+        const state = await api('/votes');
+        renderResults(state);
+        renderVotes(state.votes);
+        setApiStatus(true);
+        $('lastUpdate').textContent = 'Diperbarui ' + new Date().toLocaleTimeString('id-ID') + ' · auto-refresh 5 detik';
+      } catch (err) {
+        setApiStatus(false);
+        if (!silent) showToast('Gagal memuat data: ' + err.message, 'error');
+      }
+    }
+
+    // ---------- POST /votes ----------
+    $('voteForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const voter = $('voter').value.trim();
+      const checked = document.querySelector('input[name="option"]:checked');
+      if (!voter || !checked) {
+        showToast('Isi nama/NIM dan pilih salah satu opsi', 'error');
+        return;
+      }
+      const btn = $('submitBtn');
+      btn.disabled = true;
+      btn.textContent = 'Mengirim…';
+      try {
+        const res = await api('/votes', {
+          method: 'POST',
+          body: JSON.stringify({ voter, option: checked.value }),
+        });
+        showToast(res.message, 'success');
+        $('voteForm').reset();
+        await loadVotes();
+      } catch (err) {
+        showToast(err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Kirim Suara';
+      }
+    });
+
+    // ---------- Konfirmasi 2 klik (tanpa confirm() bawaan browser) ----------
+    // Klik pertama = minta konfirmasi, klik kedua (dalam 3 detik) = benar-benar dijalankan
+    function needsConfirm(btn, label) {
+      if (btn.dataset.armed === '1') return false;
+      const original = btn.textContent;
+      btn.dataset.armed = '1';
+      btn.classList.add('confirm');
+      btn.textContent = label;
+      setTimeout(() => {
+        btn.dataset.armed = '';
+        btn.classList.remove('confirm');
+        btn.textContent = original;
+      }, 3000);
+      return true;
+    }
+
+    // ---------- DELETE /votes?index=X ----------
+    // Status "Yakin?" disimpan di variabel (bukan di tombol), karena tabel
+    // digambar ulang setiap auto-refresh 5 detik.
+    let pendingDelete = null; // { index, voter, until }
+
+    function isArmed(v) {
+      return !!pendingDelete && pendingDelete.index === v.index &&
+        pendingDelete.voter === v.voter && Date.now() < pendingDelete.until;
+    }
+
+    async function deleteVote(v, btn) {
+      if (!isArmed(v)) {
+        pendingDelete = { index: v.index, voter: v.voter, until: Date.now() + 3000 };
+        btn.classList.add('confirm');
+        btn.textContent = 'Yakin?';
+        setTimeout(() => {
+          if (btn.isConnected && !isArmed(v)) { btn.classList.remove('confirm'); btn.textContent = 'Hapus'; }
+        }, 3100);
+        return;
+      }
+      pendingDelete = null;
+      try {
+        const res = await api('/votes?index=' + encodeURIComponent(v.index), { method: 'DELETE' });
+        showToast(res.message, 'success');
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+      await loadVotes();
+    }
+
+    // ---------- DELETE /votes?index=all (reset) ----------
+    $('resetBtn').addEventListener('click', async (e) => {
+      if (needsConfirm(e.currentTarget, 'Klik lagi untuk reset')) return;
+      try {
+        const res = await api('/votes?index=all', { method: 'DELETE' });
+        showToast(res.message, 'success');
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+      await loadVotes();
+    });
+
+    $('refreshBtn').addEventListener('click', () => loadVotes());
+
+    // Muat data pertama kali + auto refresh berkala (data real-time antar perangkat)
+    loadVotes();
+    setInterval(() => loadVotes({ silent: true }), AUTO_REFRESH_MS);
+  </script>
+</body>
+</html>

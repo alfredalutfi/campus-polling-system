@@ -1,0 +1,33 @@
+# =============================================================
+# Jenkins server untuk praktikum (Mac / Linux / Windows-WSL2)
+# =============================================================
+# Jalankan dari folder jenkins/:
+#     docker compose up -d --build
+# Buka:  http://localhost:9090
+# Password awal:
+#     docker exec jenkins cat ${HOME}/jenkins_home/secrets/initialAdminPassword
+#
+# KENAPA JENKINS_HOME = ${HOME}/jenkins_home (path yang SAMA di host & kontainer)?
+#   Jenkins memanggil Docker milik HOST (lewat docker.sock). Saat pipeline menjalankan
+#   `docker compose up`, bind mount ./frontend dibaca oleh Docker HOST memakai path
+#   workspace Jenkins. Jika path di dalam kontainer Jenkins == path di host, bind mount
+#   menunjuk ke folder yang benar. Kalau berbeda, Nginx akan menampilkan folder kosong (403).
+
+name: jenkins-lab
+
+services:
+  jenkins:
+    build: .
+    image: jenkins-lab:lts
+    container_name: jenkins
+    user: root
+    restart: unless-stopped
+    ports:
+      - "9090:8080"     # UI Jenkins -> http://localhost:9090 (8080 dipakai aplikasi polling)
+      - "50000:50000"   # port agent Jenkins
+    environment:
+      JENKINS_HOME: ${HOME}/jenkins_home
+      JAVA_OPTS: "-Djenkins.install.runSetupWizard=true"
+    volumes:
+      - ${HOME}/jenkins_home:${HOME}/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock

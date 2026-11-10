@@ -1,0 +1,64 @@
+# =============================================================
+# docker-compose.yml - Campus Polling System (Studi Kasus 7)
+# =============================================================
+# Seluruh stack didefinisikan secara DEKLARATIF di sini:
+#   - backend  : Python REST API  (data -> Named Volume polling-db-data)
+#   - frontend : Nginx + index.html (Bind Mount folder ./frontend)
+#   - app-net  : Custom Bridge Network yang menghubungkan keduanya
+#
+# Jalankan :  docker compose up -d --build
+# Buka     :  http://localhost:8080
+
+# Nama project dikunci supaya sama baik dijalankan manual maupun oleh Jenkins
+name: campus-polling
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: campus-polling-backend:latest
+    container_name: polling-backend
+    restart: unless-stopped
+    environment:
+      DATA_DIR: /var/lib/polling_data
+      POLL_QUESTION: "Tema Dies Natalis Fakultas 2026?"
+      OPTION_A: "Festival Musik"
+      OPTION_B: "Pameran Teknologi"
+    volumes:
+      # NAMED VOLUME: dikelola Docker, data votes.json aman walau kontainer dihapus
+      - polling-db-data:/var/lib/polling_data
+    networks:
+      - app-net
+    # Port 5000 sengaja TIDAK dipublish ke host -> backend terisolasi,
+    # hanya bisa diakses oleh kontainer lain di app-net (yaitu frontend).
+    expose:
+      - "5000"
+
+  frontend:
+    image: nginx:1.27-alpine
+    container_name: polling-frontend
+    restart: unless-stopped
+    ports:
+      - "8080:80"            # host:kontainer -> buka http://localhost:8080
+    volumes:
+      # BIND MOUNT: folder host ./frontend langsung dipakai Nginx.
+      # Edit index.html -> refresh browser -> perubahan langsung terlihat, tanpa rebuild.
+      - ./frontend:/usr/share/nginx/html:ro
+      # Folder config Nginx juga di-bind mount (folder, bukan file tunggal, supaya
+      # perubahan dari `git pull` tetap terbaca oleh kontainer)
+      - ./nginx:/etc/nginx/conf.d:ro
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - app-net
+
+volumes:
+  polling-db-data:
+    name: polling-db-data    # nama persis sesuai ketentuan tugas (tanpa prefix project)
+
+networks:
+  app-net:
+    name: app-net
+    driver: bridge           # Custom Bridge Network -> punya DNS internal antar-service
