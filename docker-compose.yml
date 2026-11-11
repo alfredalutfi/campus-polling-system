@@ -22,7 +22,7 @@ services:
     restart: unless-stopped
     environment:
       DATA_DIR: /var/lib/polling_data
-      POLL_QUESTION: "Lokasi Makrab Angkatan 2026?"
+      POLL_QUESTION: "Tema Dies Natalis Fakultas 2026?"
       OPTION_A: "Festival Musik"
       OPTION_B: "Pameran Teknologi"
     volumes:
